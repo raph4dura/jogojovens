@@ -1,18 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCv8m3MdhaBTLKht62ek85Gb6l2TwlOt2w",
-  authDomain: "quiz-c8ddf.firebaseapp.com",
-  projectId: "quiz-c8ddf",
-  storageBucket: "quiz-c8ddf.firebasestorage.app",
-  messagingSenderId: "308135121789",
-  appId: "1:308135121789:web:5e6b75c6e3ae9c40343214",
-  measurementId: "G-LM23Q9Q6LG"
-};
-
-const app = initializeApp(firebaseConfig);
-
-console.log("Firebase conectado!");
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 const perguntas = [
     {
