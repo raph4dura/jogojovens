@@ -19,318 +19,222 @@ const firebaseConfig = {
   measurementId: "G-LM23Q9Q6LG"
 };
 
-const perguntas = [
-    {
-        pergunta: "Quem construiu a arca?",
-        opcoes: ["Moisés", "Abraão", "Noé", "Davi"],
-        resposta: "Noé"
-    },
-    {
-        pergunta: "Quem abriu o Mar Vermelho?",
-        opcoes: ["Josué", "Moisés", "Pedro", "Elias"],
-        resposta: "Moisés"
-    },
-    {
-        pergunta: "Quem derrotou Golias?",
-        opcoes: ["Saul", "Samuel", "Davi", "Salomão"],
-        resposta: "Davi"
-    },
-    {
-        pergunta: "Quantos discípulos Jesus escolheu?",
-        opcoes: ["10", "11", "12", "13"],
-        resposta: "12"
-    },
-    {
-        pergunta: "Quem foi lançado na cova dos leões?",
-        opcoes: ["José", "Daniel", "Jeremias", "Elias"],
-        resposta: "Daniel"
-    },
-    {
-        pergunta: "Quem era o pai de Isaque?",
-        opcoes: ["Jacó", "Abraão", "José", "Moisés"],
-        resposta: "Abraão"
-    },
-    {
-        pergunta: "Quem interpretou os sonhos do faraó?",
-        opcoes: ["Davi", "Daniel", "José", "Samuel"],
-        resposta: "José"
-    },
-    {
-        pergunta: "Quem traiu Jesus?",
-        opcoes: ["Pedro", "João", "Judas", "Tomé"],
-        resposta: "Judas"
-    },
-    {
-        pergunta: "Onde Jesus nasceu?",
-        opcoes: ["Nazaré", "Jerusalém", "Belém", "Egito"],
-        resposta: "Belém"
-    },
-    {
-        pergunta: "Quem batizou Jesus?",
-        opcoes: ["Pedro", "João Batista", "Tiago", "André"],
-        resposta: "João Batista"
-    },
-    {
-        pergunta: "Quantos dias durou o dilúvio?",
-        opcoes: ["30", "40", "50", "70"],
-        resposta: "40"
-    },
-    {
-        pergunta: "Qual era a profissão de Pedro?",
-        opcoes: ["Carpinteiro", "Pescador", "Pastor", "Soldado"],
-        resposta: "Pescador"
-    },
-    {
-        pergunta: "Quem escreveu muitos Salmos?",
-        opcoes: ["Salomão", "Isaías", "Davi", "Moisés"],
-        resposta: "Davi"
-    },
-    {
-        pergunta: "Qual foi o primeiro milagre de Jesus?",
-        opcoes: ["Multiplicar pães", "Andar sobre as águas", "Transformar água em vinho", "Curar um cego"],
-        resposta: "Transformar água em vinho"
-    },
-    {
-        pergunta: "Quem foi engolido por um grande peixe?",
-        opcoes: ["Elias", "Jonas", "Jeremias", "Amós"],
-        resposta: "Jonas"
-    },
-    {
-        pergunta: "Qual discípulo andou sobre as águas com Jesus?",
-        opcoes: ["Pedro", "João", "Tomé", "Mateus"],
-        resposta: "Pedro"
-    },
-    {
-        pergunta: "Quem recebeu os Dez Mandamentos?",
-        opcoes: ["Abraão", "Josué", "Moisés", "Arão"],
-        resposta: "Moisés"
-    },
-    {
-        pergunta: "Quem era a mãe de Jesus?",
-        opcoes: ["Marta", "Maria", "Isabel", "Ana"],
-        resposta: "Maria"
-    },
-    {
-        pergunta: "Qual gigante foi derrotado por Davi?",
-        opcoes: ["Golias", "Saul", "Absalão", "Nabucodonosor"],
-        resposta: "Golias"
-    },
-    {
-        pergunta: "Qual livro é o último da Bíblia?",
-        opcoes: ["Judas", "Apocalipse", "Hebreus", "Malaquias"],
-        resposta: "Apocalipse"
-    }
-    ];
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-let respostaSelecionada = null;
-let respondeu = false;
-let tempoResultado = 5;
-let tempo = 10;
-let intervalo;
+console.log("🔥 Firebase conectado!");
+
+/* ---------------- QUIZ ---------------- */
+
+const perguntas = [
+  { pergunta: "Quem construiu a arca?", opcoes: ["Moisés","Abraão","Noé","Davi"], resposta: "Noé" },
+  { pergunta: "Quem abriu o Mar Vermelho?", opcoes: ["Josué","Moisés","Pedro","Elias"], resposta: "Moisés" },
+  { pergunta: "Quem derrotou Golias?", opcoes: ["Saul","Samuel","Davi","Salomão"], resposta: "Davi" },
+  { pergunta: "Quantos discípulos Jesus escolheu?", opcoes: ["10","11","12","13"], resposta: "12" },
+  { pergunta: "Quem foi lançado na cova dos leões?", opcoes: ["José","Daniel","Jeremias","Elias"], resposta: "Daniel" }
+];
+
 let perguntaAtual = 0;
 let pontuacao = 0;
+let respostaSelecionada = null;
+let tempo = 10;
+let intervalo;
+
+/* ---------------- INICIO ---------------- */
 
 function comecarQuiz() {
 
-    perguntas.sort(() => Math.random() - 0.5);
+  perguntas.sort(() => Math.random() - 0.5);
 
-    const nome = document.getElementById("nome").value.trim();
+  const nome = document.getElementById("nome").value.trim();
 
-    if (nome === "") {
-        alert("Digite seu nome!");
-        return;
-    }
+  if (!nome) {
+    alert("Digite seu nome!");
+    return;
+  }
 
-    localStorage.setItem("nomeJogador", nome);
+  localStorage.setItem("nomeJogador", nome);
 
-    mostrarPergunta();
+  mostrarPergunta();
 }
+
+/* ---------------- PERGUNTA ---------------- */
 
 function mostrarPergunta() {
 
-    document.body.classList.remove("acertou", "errou");
+  document.body.classList.remove("acertou", "errou");
 
-    const p = perguntas[perguntaAtual];
+  const p = perguntas[perguntaAtual];
 
-    document.querySelector(".container").innerHTML = `
-        <h2>Pergunta ${perguntaAtual + 1}/${perguntas.length}</h2>
+  document.querySelector(".container").innerHTML = `
+    <h2>Pergunta ${perguntaAtual + 1}/${perguntas.length}</h2>
 
-        <p>⏱️ Tempo: <span id="tempo">${tempo}</span>s</p>
+    <p>⏱️ Tempo: <span id="tempo">${tempo}</span>s</p>
 
-        <h3>${p.pergunta}</h3>
+    <h3>${p.pergunta}</h3>
 
-        <div class="opcoes">
-            ${p.opcoes.map(opcao => `
-                <button class="opcao" onclick="responder('${opcao}')">
-                    ${opcao}
-                </button>
-            `).join("")}
-        </div>
-    `;
+    <div class="opcoes">
+      ${p.opcoes.map(opcao => `
+        <button class="opcao" onclick="responder('${opcao}')">
+          ${opcao}
+        </button>
+      `).join("")}
+    </div>
+  `;
 
-    tempo = 10;
+  tempo = 10;
 
-    clearInterval(intervalo);
+  clearInterval(intervalo);
 
-    intervalo = setInterval(() => {
+  intervalo = setInterval(() => {
 
-        tempo--;
+    tempo--;
+    document.getElementById("tempo").textContent = tempo;
 
-        document.getElementById("tempo").textContent = tempo;
+    if (tempo <= 0) {
+      clearInterval(intervalo);
+      mostrarCorrecao();
+    }
 
-        if (tempo <= 0) {
-
-            clearInterval(intervalo);
-        
-            mostrarCorrecao();
-        
-        }
-
-    }, 1000);
+  }, 1000);
 }
 
-function mostrarResultado(acertou, respostaEscolhida) {
+/* ---------------- RESPOSTA ---------------- */
 
-    const pergunta = perguntas[perguntaAtual];
+function responder(opcao) {
+  respostaSelecionada = opcao;
 
-    let contador = 5;
+  document.querySelectorAll(".opcao").forEach(btn => {
+    btn.classList.remove("selecionada");
 
-    document.querySelector(".container").innerHTML = `
-        <h1>${acertou ? "✅ Acertou!" : "❌ Errou!"}</h1>
-
-        <p><strong>Sua resposta:</strong></p>
-        <p>${respostaEscolhida}</p>
-
-        <br>
-
-        <p><strong>Resposta correta:</strong></p>
-        <p>${pergunta.resposta}</p>
-
-        <br>
-
-        <h3>⭐ Pontuação atual: ${pontuacao}</h3>
-
-        <br>
-
-        <p>Próxima pergunta em <span id="contador">${contador}</span>...</p>
-    `;
-
-    const intervaloResultado = setInterval(() => {
-
-        contador--;
-
-        document.getElementById("contador").textContent = contador;
-
-        if (contador <= 0) {
-
-            clearInterval(intervaloResultado);
-
-            perguntaAtual++;
-
-            if (perguntaAtual < perguntas.length) {
-                mostrarPergunta();
-            } else {
-                finalizarQuiz();
-            }
-
-        }
-
-    }, 1000);
-
+    if (btn.textContent.trim() === opcao) {
+      btn.classList.add("selecionada");
+    }
+  });
 }
 
-function responder(opcaoEscolhida) {
-
-    respostaSelecionada = opcaoEscolhida;
-
-    const botoes = document.querySelectorAll(".opcao");
-
-    botoes.forEach(botao => {
-        botao.classList.remove("selecionada");
-
-        if (botao.textContent.trim() === opcaoEscolhida) {
-            botao.classList.add("selecionada");
-        }
-    });
-}
+/* ---------------- CORREÇÃO ---------------- */
 
 function mostrarCorrecao() {
 
-    const pergunta = perguntas[perguntaAtual];
+  const p = perguntas[perguntaAtual];
+  const acertou = respostaSelecionada === p.resposta;
 
-    const acertou =
-        respostaSelecionada === pergunta.resposta;
+  document.body.classList.remove("acertou", "errou");
 
-    document.body.classList.remove(
-        "acertou",
-        "errou"
-    );
+  if (acertou) {
+    pontuacao++;
+    document.body.classList.add("acertou");
+  } else {
+    document.body.classList.add("errou");
+  }
 
-    if (respostaSelecionada === null) {
+  setTimeout(() => {
+    mostrarResultado(acertou, respostaSelecionada || "Nenhuma resposta");
+    respostaSelecionada = null;
+  }, 500);
+}
 
-        document.body.classList.add("errou");
+/* ---------------- RESULTADO ---------------- */
 
-    } else if (acertou) {
+function mostrarResultado(acertou, respostaEscolhida) {
 
-        pontuacao++;
-        document.body.classList.add("acertou");
+  const p = perguntas[perguntaAtual];
 
-    } else {
+  let contador = 3;
 
-        document.body.classList.add("errou");
+  document.querySelector(".container").innerHTML = `
+    <h1>${acertou ? "✅ Acertou!" : "❌ Errou!"}</h1>
 
+    <p>Sua resposta: ${respostaEscolhida}</p>
+    <p>Correta: ${p.resposta}</p>
+
+    <h3>Pontos: ${pontuacao}</h3>
+
+    <p>Próxima em <span id="contador">${contador}</span>...</p>
+  `;
+
+  const interval = setInterval(() => {
+
+    contador--;
+    document.getElementById("contador").textContent = contador;
+
+    if (contador <= 0) {
+      clearInterval(interval);
+
+      perguntaAtual++;
+
+      if (perguntaAtual < perguntas.length) {
+        mostrarPergunta();
+      } else {
+        finalizarQuiz();
+      }
     }
 
-    setTimeout(() => {
-
-        mostrarResultado(
-            acertou,
-            respostaSelecionada || "Nenhuma resposta"
-        );
-
-        respostaSelecionada = null;
-        respondeu = false;
-
-    }, 500);
+  }, 1000);
 }
+
+/* ---------------- FINALIZAR + FIREBASE ---------------- */
 
 async function finalizarQuiz() {
 
-    const nome = localStorage.getItem("nomeJogador");
+  const nome = localStorage.getItem("nomeJogador");
 
-    // SALVA NO FIREBASE
-    await addDoc(collection(db, "ranking"), {
-        nome: nome,
-        pontos: pontuacao,
-        data: new Date()
-    });
+  await addDoc(collection(db, "ranking"), {
+    nome: nome,
+    pontos: pontuacao,
+    data: new Date()
+  });
 
-    mostrarRanking();
-}
-    document.querySelector(".container").innerHTML = `
-        <h1>🎉 Resultado</h1>
-
-        <h2>${nome}</h2>
-
-        <p>Você acertou ${pontuacao} de ${perguntas.length} perguntas!</p>
-
-        <hr>
-
-        <h2>🏆 Ranking</h2>
-
-        ${rankingHTML}
-
-        <br>
-
-        <button onclick="location.reload()">
-            Jogar Novamente
-        </button>
-    `;
+  mostrarRanking();
 }
 
-function limparRanking() {
-    localStorage.removeItem("ranking");
-    alert("Ranking apagado!");
+/* ---------------- RANKING ---------------- */
+
+async function mostrarRanking() {
+
+  const q = query(collection(db, "ranking"), orderBy("pontos", "desc"));
+  const snapshot = await getDocs(q);
+
+  let rankingHTML = "";
+  let i = 0;
+
+  snapshot.forEach(doc => {
+
+    const j = doc.data();
+
+    let medalha = "";
+    if (i === 0) medalha = "🥇";
+    else if (i === 1) medalha = "🥈";
+    else if (i === 2) medalha = "🥉";
+
+    if (i < 10) {
+      rankingHTML += `<p>${medalha} ${i + 1}º - ${j.nome} (${j.pontos})</p>`;
+    }
+
+    i++;
+  });
+
+  document.querySelector(".container").innerHTML = `
+    <h1>🎉 Resultado Final</h1>
+
+    <h2>${localStorage.getItem("nomeJogador")}</h2>
+
+    <p>Você fez ${pontuacao} pontos!</p>
+
+    <hr>
+
+    <h2>🏆 Ranking</h2>
+
+    ${rankingHTML}
+
+    <br>
+
+    <button onclick="location.reload()">Jogar novamente</button>
+  `;
 }
+
+/* ---------------- EXPOR FUNÇÕES ---------------- */
 
 window.comecarQuiz = comecarQuiz;
+window.responder = responder;
