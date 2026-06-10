@@ -289,36 +289,19 @@ function mostrarCorrecao() {
     }, 500);
 }
 
-function finalizarQuiz() {
+async function finalizarQuiz() {
 
     const nome = localStorage.getItem("nomeJogador");
 
-    let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
-
-    ranking.push({
+    // SALVA NO FIREBASE
+    await addDoc(collection(db, "ranking"), {
         nome: nome,
-        pontos: pontuacao
+        pontos: pontuacao,
+        data: new Date()
     });
 
-    ranking.sort((a, b) => b.pontos - a.pontos);
-
-    localStorage.setItem("ranking", JSON.stringify(ranking));
-
-    let rankingHTML = "";
-
-    ranking.slice(0, 10).forEach((jogador, index) => {
-
-        let medalha = "";
-    
-        if(index === 0) medalha = "🥇";
-        else if(index === 1) medalha = "🥈";
-        else if(index === 2) medalha = "🥉";
-    
-        rankingHTML += `
-            <p>${medalha} ${index + 1}º - ${jogador.nome} (${jogador.pontos} pontos)</p>
-        `;
-    });
-
+    mostrarRanking();
+}
     document.querySelector(".container").innerHTML = `
         <h1>🎉 Resultado</h1>
 
