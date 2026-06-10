@@ -332,3 +332,5 @@ function limparRanking() {
     localStorage.removeItem("ranking");
     alert("Ranking apagado!");
 }
+
+window.comecarQuiz = comecarQuiz;
