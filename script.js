@@ -238,3 +238,4 @@ async function mostrarRanking() {
 
 window.comecarQuiz = comecarQuiz;
 window.responder = responder;
+window.finalizarQuiz = finalizarQuiz;
