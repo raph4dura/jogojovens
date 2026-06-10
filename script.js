@@ -10,7 +10,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCv8m3MdhaBTLKht62ek55Gb6l2TwlOt2w",
+  apiKey: "SUA_API_KEY",
   authDomain: "quiz-c8ddf.firebaseapp.com",
   projectId: "quiz-c8ddf",
   storageBucket: "quiz-c8ddf.firebasestorage.app",
@@ -18,11 +18,6 @@ const firebaseConfig = {
   appId: "1:308135121789:web:5e6b75c6e3ae9c40343214",
   measurementId: "G-LM23Q9Q6LG"
 };
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-console.log("Firebase conectado!");
 
 const perguntas = [
     {
