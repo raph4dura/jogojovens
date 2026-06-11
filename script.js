@@ -9,6 +9,8 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
+/* ---------------- FIREBASE ---------------- */
+
 const firebaseConfig = {
   apiKey: "AIzaSyCv8m3MdhaBTLKht62ek85Gb6l2TwlOt2w",
   authDomain: "quiz-c8ddf.firebaseapp.com",
@@ -21,7 +23,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-console.log("🔥 Firebase conectado!");
+console.log("🔥 Firebase conectado");
 
 /* ---------------- QUIZ ---------------- */
 
@@ -39,10 +41,9 @@ let respostaSelecionada = null;
 let tempo = 10;
 let intervalo;
 
-/* ---------------- INICIO ---------------- */
+/* ---------------- INICIAR ---------------- */
 
 function comecarQuiz() {
-
   perguntas.sort(() => Math.random() - 0.5);
 
   const nome = document.getElementById("nome").value.trim();
@@ -57,10 +58,9 @@ function comecarQuiz() {
   mostrarPergunta();
 }
 
-/* ---------------- PERGUNTA ---------------- */
+/* ---------------- PERGUNTAS ---------------- */
 
 function mostrarPergunta() {
-
   document.body.classList.remove("acertou", "errou");
 
   const p = perguntas[perguntaAtual];
@@ -86,15 +86,15 @@ function mostrarPergunta() {
   clearInterval(intervalo);
 
   intervalo = setInterval(() => {
-
     tempo--;
-    document.getElementById("tempo").textContent = tempo;
+    const el = document.getElementById("tempo");
+
+    if (el) el.textContent = tempo;
 
     if (tempo <= 0) {
       clearInterval(intervalo);
       mostrarCorrecao();
     }
-
   }, 1000);
 }
 
@@ -115,7 +115,6 @@ function responder(opcao) {
 /* ---------------- CORREÇÃO ---------------- */
 
 function mostrarCorrecao() {
-
   const p = perguntas[perguntaAtual];
   const acertou = respostaSelecionada === p.resposta;
 
@@ -137,7 +136,6 @@ function mostrarCorrecao() {
 /* ---------------- RESULTADO ---------------- */
 
 function mostrarResultado(acertou, respostaEscolhida) {
-
   const p = perguntas[perguntaAtual];
 
   let contador = 3;
@@ -154,9 +152,10 @@ function mostrarResultado(acertou, respostaEscolhida) {
   `;
 
   const interval = setInterval(() => {
-
     contador--;
-    document.getElementById("contador").textContent = contador;
+    const el = document.getElementById("contador");
+
+    if (el) el.textContent = contador;
 
     if (contador <= 0) {
       clearInterval(interval);
@@ -169,14 +168,12 @@ function mostrarResultado(acertou, respostaEscolhida) {
         finalizarQuiz();
       }
     }
-
   }, 1000);
 }
 
-/* ---------------- FINALIZAR + FIREBASE ---------------- */
+/* ---------------- FINAL ---------------- */
 
 async function finalizarQuiz() {
-
   const nome = localStorage.getItem("nomeJogador");
 
   await addDoc(collection(db, "ranking"), {
@@ -191,7 +188,6 @@ async function finalizarQuiz() {
 /* ---------------- RANKING ---------------- */
 
 async function mostrarRanking() {
-
   const q = query(collection(db, "ranking"), orderBy("pontos", "desc"));
   const snapshot = await getDocs(q);
 
@@ -199,7 +195,6 @@ async function mostrarRanking() {
   let i = 0;
 
   snapshot.forEach(doc => {
-
     const j = doc.data();
 
     let medalha = "";
@@ -233,12 +228,17 @@ async function mostrarRanking() {
   `;
 }
 
-/* ---------------- EXPOR FUNÇÕES ---------------- */
+/* ---------------- EXPORT ---------------- */
 
 window.comecarQuiz = comecarQuiz;
 window.responder = responder;
-window.finalizarQuiz = finalizarQuiz;
+
+/* ---------------- BOTÃO ---------------- */
 
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("btnComecar").addEventListener("click", comecarQuiz);
+  const btn = document.getElementById("btnComecar");
+
+  if (btn) {
+    btn.addEventListener("click", comecarQuiz);
+  }
 });
