@@ -231,3 +231,7 @@ async function mostrarRanking() {
 window.comecarQuiz = comecarQuiz;
 window.responder = responder;
 window.finalizarQuiz = finalizarQuiz;
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("btnComecar").addEventListener("click", comecarQuiz);
+});
